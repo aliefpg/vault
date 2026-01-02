@@ -1,0 +1,5 @@
+{
+  "name": "SecureVault",
+  "description": "A high-security vault for passwords, seed phrases, patterns, and PINs with customizable categories and a sleek dark interface.",
+  "requestFramePermissions": []
+}
