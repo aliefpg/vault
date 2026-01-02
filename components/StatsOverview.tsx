@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Shield, Key, Hash, Grid, Box } from 'lucide-react';
+import { Shield, Key, Hash, Grid, Box, KeyRound } from 'lucide-react';
 import { VaultEntry, EntryType } from '../types';
 
 interface StatsOverviewProps {
@@ -13,6 +13,7 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ entries }) => {
     [EntryType.PIN]: entries.filter(e => e.type === EntryType.PIN).length,
     [EntryType.SEED_PHRASE]: entries.filter(e => e.type === EntryType.SEED_PHRASE).length,
     [EntryType.PATTERN]: entries.filter(e => e.type === EntryType.PATTERN).length,
+    [EntryType.SECRET_KEY]: entries.filter(e => e.type === EntryType.SECRET_KEY).length,
   };
 
   const stats = [
@@ -20,10 +21,11 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ entries }) => {
     { type: EntryType.PIN, icon: <Hash size={20} />, color: 'purple', count: counts[EntryType.PIN] },
     { type: EntryType.SEED_PHRASE, icon: <Box size={20} />, color: 'amber', count: counts[EntryType.SEED_PHRASE] },
     { type: EntryType.PATTERN, icon: <Grid size={20} />, color: 'pink', count: counts[EntryType.PATTERN] },
+    { type: EntryType.SECRET_KEY, icon: <KeyRound size={20} />, color: 'emerald', count: counts[EntryType.SECRET_KEY] },
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
       {stats.map((stat) => (
         <div 
           key={stat.type}
@@ -38,7 +40,7 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ entries }) => {
           </div>
           <div className="flex flex-col">
             <span className="text-2xl font-black text-white leading-none mb-1">{stat.count}</span>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{stat.type}s</span>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{stat.type === EntryType.SECRET_KEY ? 'Secrets' : stat.type + 's'}s</span>
           </div>
         </div>
       ))}

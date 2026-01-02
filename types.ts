@@ -3,7 +3,8 @@ export enum EntryType {
   PASSWORD = 'Password',
   SEED_PHRASE = 'Seed Phrase',
   PIN = 'PIN',
-  PATTERN = 'Pattern'
+  PATTERN = 'Pattern',
+  SECRET_KEY = 'Secret Key'
 }
 
 export interface Category {
@@ -18,6 +19,7 @@ export interface VaultEntry {
   type: EntryType;
   categoryId: string;
   username?: string;
+  issuer?: string;
   value: string;
   notes?: string;
   createdAt: number;
@@ -26,11 +28,20 @@ export interface VaultEntry {
 
 export type NewEntry = Omit<VaultEntry, 'id' | 'createdAt' | 'lastModified'>;
 
-// Added PortalLink interface to support the portal/website links feature
 export interface PortalLink {
   id: string;
   title: string;
   url: string;
   description?: string;
   createdAt: number;
+}
+
+export interface ReleaseNote {
+  version: string;
+  date: string;
+  title: string;
+  changes: {
+    type: 'feature' | 'improvement' | 'fix';
+    text: string;
+  }[];
 }

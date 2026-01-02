@@ -12,7 +12,8 @@ import {
   Upload,
   Globe,
   FolderPlus,
-  HelpCircle
+  HelpCircle,
+  Sparkles
 } from 'lucide-react';
 import { Category } from '../types';
 
@@ -28,7 +29,9 @@ interface SidebarProps {
   toggleSidebar: () => void;
   onViewPortals: () => void;
   onOpenGuide: () => void;
+  onOpenChangelog: () => void;
   currentView: 'vault' | 'portals';
+  hasUpdate?: boolean;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ 
@@ -43,7 +46,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   toggleSidebar,
   onViewPortals,
   onOpenGuide,
-  currentView
+  onOpenChangelog,
+  currentView,
+  hasUpdate = false
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const systemCat = categories.find(c => c.id === 'uncategorized');
@@ -171,7 +176,23 @@ const Sidebar: React.FC<SidebarProps> = ({
             </div>
           </nav>
 
-          <div className="mt-auto pt-6">
+          <div className="mt-auto pt-6 space-y-2">
+            <button 
+              onClick={onOpenChangelog}
+              className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-xs font-black transition-all uppercase tracking-widest relative ${hasUpdate ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/30 ring-1 ring-indigo-400' : 'text-slate-300 bg-indigo-600/10 hover:bg-indigo-600/20 border border-indigo-500/20'}`}
+            >
+              <div className="flex items-center gap-3">
+                <Sparkles size={18} className={hasUpdate ? 'text-white' : 'text-indigo-400'} /> Update Terbaru
+              </div>
+              {hasUpdate ? (
+                <div className="absolute -top-1 -right-1 flex h-4 w-4">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 border-2 border-slate-900"></span>
+                </div>
+              ) : (
+                <span className="bg-indigo-500 text-[8px] px-1.5 py-0.5 rounded-sm">V.1.3.0</span>
+              )}
+            </button>
             <button 
               onClick={onOpenGuide}
               className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-xs font-black text-slate-300 bg-slate-800/40 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition-all uppercase tracking-widest"

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Lock, RotateCcw, User } from 'lucide-react';
+import { X, Lock, RotateCcw, User, Globe } from 'lucide-react';
 import { EntryType, Category, VaultEntry } from '../types';
 import PatternGrid from './PatternGrid';
 
@@ -18,6 +18,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, onSave, catego
     type: EntryType.PASSWORD,
     categoryId: 'uncategorized',
     username: '',
+    issuer: '',
     value: '',
     notes: '',
   });
@@ -32,6 +33,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, onSave, catego
         type: base.type || EntryType.PASSWORD,
         categoryId: base.categoryId || categories[0]?.id || 'uncategorized',
         username: base.username || '',
+        issuer: base.issuer || '',
         value: base.value || '',
         notes: base.notes || '',
         id: base.id
@@ -71,7 +73,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, onSave, catego
   const handleTypeChange = (newType: EntryType) => {
     if (newType === formData.type) return;
     // Reset nilai hanya jika tipe berubah secara drastis
-    setFormData(prev => ({ ...prev, type: newType, value: '' }));
+    setFormData(prev => ({ ...prev, type: newType, value: '', username: '', issuer: '' }));
   };
 
   return (
@@ -143,6 +145,22 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, onSave, catego
                 </div>
               )}
 
+                {formData.type === EntryType.SECRET_KEY && (
+                <div>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 ml-1">Issuer / Layanan</label>
+                  <div className="relative group">
+                    <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-500" size={16} />
+                    <input 
+                      type="text" 
+                      className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl pl-12 pr-4 py-3.5 text-sm text-white focus:ring-2 focus:ring-emerald-500/40 transition-all"
+                      placeholder="Contoh: Google, Binance, AWS..."
+                      value={formData.issuer || ''}
+                      onChange={e => setFormData(prev => ({ ...prev, issuer: e.target.value }))}
+                    />
+                  </div>
+                </div>
+              )}
+              
               <div className="flex items-center justify-between ml-1">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
                   {formData.type === EntryType.SEED_PHRASE
@@ -179,7 +197,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, onSave, catego
                 <input 
                   type={formData.type === EntryType.PIN ? "number" : "text"} required
                   className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl px-4 py-3.5 text-sm font-mono text-white focus:ring-2 focus:ring-blue-500/40"
-                  placeholder={formData.type === EntryType.PIN ? "0000" : "Ketik Password..."}
+                  placeholder={formData.type === EntryType.PIN ? "0000" : "Ketik Secret Key..."}
                   value={formData.value}
                   onChange={e => setFormData(prev => ({ ...prev, value: e.target.value }))}
                 />

@@ -4,7 +4,7 @@ import {
   Plus, Search, Menu, ShieldCheck, LayoutDashboard, Lock, 
   Clock, ShieldAlert, Key, Hash, Grid, Box, ChevronRight, 
   ShieldCheck as ShieldIcon, Globe, ExternalLink, Trash2,
-  FolderPlus, Inbox, HelpCircle, Calendar
+  FolderPlus, Inbox, HelpCircle, Calendar, KeyRound, Sparkles, X as CloseIcon
 } from 'lucide-react';
 import { VaultEntry, Category, EntryType, PortalLink } from './types.ts';
 import Sidebar from './components/Sidebar.tsx';
@@ -17,6 +17,11 @@ import LockScreen from './components/LockScreen.tsx';
 import PortalCard from './components/PortalCard.tsx';
 import ImportStatusModal from './components/ImportStatusModal.tsx';
 import InteractiveTour from './components/InteractiveTour.tsx';
+import StatsOverview from './components/StatsOverview.tsx';
+import ChangelogModal from './components/ChangelogModal.tsx';
+
+// GANTI VERSI DI SINI SETIAP KALI ANDA MENAMBAH FITUR BARU
+const APP_VERSION = '1.3.0'; 
 
 const STATIC_PORTALS: PortalLink[] = [
   { id: '1', title: 'OmniPro', url: 'https://omni-ruby.vercel.app/', description: 'OmniPro adalah pusat kendali produktivitas All-in-One: Kelola keuangan cerdas, timeline rapat profesional, dan sistem manajemen tugas dalam satu dashboard adaptif.', createdAt: Date.now() },
@@ -73,6 +78,8 @@ const App: React.FC = () => {
   const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isTourActive, setIsTourActive] = useState(false);
+  const [isChangelogOpen, setIsChangelogOpen] = useState(false);
+  const [hasNewUpdate, setHasNewUpdate] = useState(false);
   
   const [editingEntry, setEditingEntry] = useState<VaultEntry | null>(null);
   const [entryToDelete, setEntryToDelete] = useState<VaultEntry | null>(null);
@@ -89,13 +96,27 @@ const App: React.FC = () => {
       localStorage.setItem('vault_entries', JSON.stringify(entries));
       localStorage.setItem('vault_categories', JSON.stringify(categories));
       
+      // Check for first time tour
       const hasSeenTour = localStorage.getItem('vault_seen_tour');
       if (!hasSeenTour) {
         setIsTourActive(true);
         localStorage.setItem('vault_seen_tour', 'true');
       }
+
+      // CEK VERSI: Jika versi di kode > versi yang pernah dilihat user, tampilkan tanda notifikasi
+      const lastSeenVersion = localStorage.getItem('vault_version');
+      if (lastSeenVersion !== APP_VERSION) {
+        setHasNewUpdate(true);
+      }
     }
   }, [entries, categories, isUnlocked]);
+
+  // Fungsi saat user klik menu Update Terbaru
+  const openChangelog = () => {
+    setIsChangelogOpen(true);
+    setHasNewUpdate(false); // Hilangkan tanda notifikasi
+    localStorage.setItem('vault_version', APP_VERSION); // Tandai versi ini sudah dilihat
+  };
 
   const handleSaveEntry = (data: Partial<VaultEntry>) => {
     if (editingEntry) {
@@ -109,6 +130,7 @@ const App: React.FC = () => {
         type: data.type || EntryType.PASSWORD,
         categoryId: data.categoryId || 'uncategorized',
         username: data.username,
+        issuer: data.issuer,
         value: data.value || '',
         notes: data.notes,
         createdAt: Date.now(),
@@ -125,7 +147,8 @@ const App: React.FC = () => {
       entries,
       categories,
       exportDate: new Date().toISOString(),
-      app: "SecureVault"
+      app: "SecureVault Pro",
+      version: APP_VERSION
     };
     const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -193,6 +216,7 @@ const App: React.FC = () => {
           if (rawType.includes('PIN')) vType = EntryType.PIN;
           else if (rawType.includes('SEED')) vType = EntryType.SEED_PHRASE;
           else if (rawType.includes('PATTERN')) vType = EntryType.PATTERN;
+          else if (rawType.includes('SECRET')) vType = EntryType.SECRET_KEY;
 
           return {
             id: String(item.id || generateId()),
@@ -200,6 +224,7 @@ const App: React.FC = () => {
             type: vType,
             categoryId: (item.categoryId && validCatIds.has(item.categoryId)) ? String(item.categoryId) : 'uncategorized',
             username: item.username ? String(item.username) : '',
+            issuer: item.issuer ? String(item.issuer) : '',
             value: String(item.value || ''),
             notes: item.notes ? String(item.notes) : '',
             createdAt: Number(item.createdAt) || Date.now(),
@@ -264,7 +289,9 @@ const App: React.FC = () => {
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         onViewPortals={() => { setView('portals'); setSelectedCategoryId(null); }}
         onOpenGuide={() => setIsTourActive(true)}
+        onOpenChangelog={openChangelog}
         currentView={view}
+        hasUpdate={hasNewUpdate}
       />
 
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
@@ -311,54 +338,58 @@ const App: React.FC = () => {
         </header>
 
         <div className="flex-1 overflow-y-auto p-6 custom-scrollbar relative z-20">
-          <div className="max-w-6xl mx-auto space-y-10">
+          <div className="max-w-6xl mx-auto space-y-6">
             {!selectedCategoryId && !searchQuery && view === 'vault' && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-gradient-to-br from-blue-600 to-indigo-800 rounded-[3rem] p-10 relative overflow-hidden shadow-2xl group">
-                  <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:rotate-12 transition-transform duration-700">
-                    <ShieldIcon size={240} className="text-white" />
-                  </div>
-                  <div className="relative z-10 space-y-6">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <div className="bg-white/20 p-2.5 rounded-2xl backdrop-blur-md border border-white/20 flex items-center gap-2">
-                        <Calendar size={18} className="text-white" />
-                        <span className="text-[10px] font-black text-blue-100 uppercase tracking-widest">
-                          {currentTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-                        </span>
-                      </div>
-                      <div className="bg-white/20 p-2.5 rounded-2xl backdrop-blur-md border border-white/20 flex items-center gap-2">
-                        <Clock size={18} className="text-white" />
-                      </div>
-                      <span className="text-[10px] font-black text-blue-100 uppercase tracking-widest">
-                          {currentTime.toLocaleTimeString('id-ID')}
-                        </span>
+              <div className="space-y-10">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2 bg-gradient-to-br from-blue-600 to-indigo-800 rounded-[3rem] p-10 relative overflow-hidden shadow-2xl group">
+                    <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:rotate-12 transition-transform duration-700">
+                      <ShieldIcon size={240} className="text-white" />
                     </div>
-                    <div className="space-y-2">
-                      <h2 className="text-4xl font-black text-white">Halo, Selamat Datang!</h2>
-                      <p className="text-blue-100/70 text-lg font-medium max-w-sm">Semua rahasia Anda aman terenkripsi.</p>
+                    <div className="relative z-10 space-y-6">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <div className="bg-white/20 p-2.5 rounded-2xl backdrop-blur-md border border-white/20 flex items-center gap-2">
+                          <Calendar size={18} className="text-white" />
+                          <span className="text-[10px] font-black text-blue-100 uppercase tracking-widest">
+                            {currentTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                          </span>
+                        </div>
+                        <div className="bg-white/20 p-2.5 rounded-2xl backdrop-blur-md border border-white/20 flex items-center gap-2">
+                          <Clock size={18} className="text-white" />
+                          <span className="text-[10px] font-black text-blue-100 uppercase tracking-widest">
+                            {currentTime.toLocaleTimeString('id-ID')}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <h2 className="text-4xl font-black text-white">Halo, Selamat Datang!</h2>
+                        <p className="text-blue-100/70 text-lg font-medium max-w-sm">Semua rahasia Anda aman terenkripsi.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-900 border border-slate-800 rounded-[3rem] p-10 flex flex-col justify-between shadow-xl">
+                    <div>
+                      <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.3em] mb-6">Pintasan Cepat</h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button onClick={() => setView('portals')} className="p-4 bg-slate-950/50 rounded-2xl border border-slate-800 hover:border-indigo-500 transition-colors flex flex-col items-center gap-2">
+                          <Globe size={20} className="text-indigo-400" />
+                          <span className="text-[10px] font-bold uppercase">Web Portal</span>
+                        </button>
+                        <button onClick={() => { setQuickType(EntryType.SECRET_KEY); setEditingEntry(null); setIsEntryModalOpen(true); }} className="p-4 bg-slate-950/50 rounded-2xl border border-slate-800 hover:border-emerald-500 transition-colors flex flex-col items-center gap-2">
+                          <KeyRound size={20} className="text-emerald-400" />
+                          <span className="text-[10px] font-bold uppercase">Secret Key</span>
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mt-8 flex items-center justify-between p-4 bg-blue-600/10 border border-blue-500/20 rounded-2xl">
+                      <span className="text-xs font-bold text-blue-400">Total</span>
+                      <span className="text-xl font-black text-white">{entries.length}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 rounded-[3rem] p-10 flex flex-col justify-between shadow-xl">
-                  <div>
-                    <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.3em] mb-6">Pintasan Cepat</h3>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button onClick={() => setView('portals')} className="p-4 bg-slate-950/50 rounded-2xl border border-slate-800 hover:border-indigo-500 transition-colors flex flex-col items-center gap-2">
-                        <Globe size={20} className="text-indigo-400" />
-                        <span className="text-[10px] font-bold uppercase">Web Portal</span>
-                      </button>
-                      <button onClick={() => { setQuickType(EntryType.PASSWORD); setEditingEntry(null); setIsEntryModalOpen(true); }} className="p-4 bg-slate-950/50 rounded-2xl border border-slate-800 hover:border-blue-500 transition-colors flex flex-col items-center gap-2">
-                        <Key size={20} className="text-blue-400" />
-                        <span className="text-[10px] font-bold uppercase">Password</span>
-                      </button>
-                    </div>
-                  </div>
-                  <div className="mt-8 flex items-center justify-between p-4 bg-blue-600/10 border border-blue-500/20 rounded-2xl">
-                    <span className="text-xs font-bold text-blue-400">Total</span>
-                    <span className="text-xl font-black text-white">{entries.length}</span>
-                  </div>
-                </div>
+                <StatsOverview entries={entries} />
               </div>
             )}
 
@@ -400,6 +431,10 @@ const App: React.FC = () => {
       {/* MODALS */}
       {importStatus.isActive && (
         <ImportStatusModal status={importStatus} onClose={() => setImportStatus(prev => ({ ...prev, isActive: false }))} />
+      )}
+
+      {isChangelogOpen && (
+        <ChangelogModal isOpen={isChangelogOpen} onClose={() => setIsChangelogOpen(false)} />
       )}
 
       {isTourActive && (
