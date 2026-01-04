@@ -21,7 +21,7 @@ import StatsOverview from './components/StatsOverview.tsx';
 import ChangelogModal from './components/ChangelogModal.tsx';
 
 // GANTI VERSI DI SINI SETIAP KALI ANDA MENAMBAH FITUR BARU
-const APP_VERSION = '1.3.0'; 
+const APP_VERSION = '1.3.1'; 
 
 const STATIC_PORTALS: PortalLink[] = [
   { id: '1', title: 'OmniPro', url: 'https://omni-ruby.vercel.app/', description: 'OmniPro adalah pusat kendali produktivitas All-in-One: Kelola keuangan cerdas, timeline rapat profesional, dan sistem manajemen tugas dalam satu dashboard adaptif.', createdAt: Date.now() },

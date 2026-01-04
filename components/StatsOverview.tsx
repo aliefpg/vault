@@ -40,7 +40,7 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ entries }) => {
           </div>
           <div className="flex flex-col">
             <span className="text-2xl font-black text-white leading-none mb-1">{stat.count}</span>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{stat.type === EntryType.SECRET_KEY ? 'Secrets' : stat.type + 's'}s</span>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{stat.type === EntryType.SECRET_KEY ? 'Secrets' : stat.type + 's'}</span>
           </div>
         </div>
       ))}

@@ -190,7 +190,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 border-2 border-slate-900"></span>
                 </div>
               ) : (
-                <span className="bg-indigo-500 text-[8px] px-1.5 py-0.5 rounded-sm">V.1.3.0</span>
+                <span className="bg-indigo-500 text-[8px] px-1.5 py-0.5 rounded-sm">V.1.3.1</span>
               )}
             </button>
             <button 

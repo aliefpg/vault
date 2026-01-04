@@ -4,6 +4,17 @@ import { X, Sparkles, Rocket, Zap, Bug, ChevronRight, CheckCircle2 } from 'lucid
 import { ReleaseNote } from '../types.ts';
 
 const RELEASE_NOTES: ReleaseNote[] = [
+ {
+    version: '1.3.1',
+    date: '4 Januari 2026',
+    title: 'Sensor Cerdas & Placeholder Kontekstual',
+    changes: [
+      { type: 'feature', text: 'Placeholder Dinamis: Kolom input rahasia kini menyesuaikan teks petunjuk (placeholder) secara otomatis berdasarkan tipe data yang dipilih (Password, PIN, Seed, dll).' },
+      { type: 'improvement', text: 'Sensor Pola Terintegrasi: Identitas (Username/Email) pada tipe Pattern kini otomatis terbuka saat Anda mengklik tombol "Lihat Pola" untuk efisiensi akses.' },
+      { type: 'improvement', text: 'Visual Entry Card: Penambahan ikon identitas (User) dan layanan (Globe) pada kartu rahasia agar informasi lebih mudah dibaca sekilas.' },
+      { type: 'fix', text: 'Perbaikan sensor manual pada kartu Pattern yang sebelumnya tidak memiliki tombol kontrol mandiri untuk identitas.' }
+    ]
+  },
   {
     version: '1.3.0',
     date: '2 Januari 2026',

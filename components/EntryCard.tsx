@@ -74,6 +74,9 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, category, onDelete, onEdit
     );
   };
 
+  // Gabungkan status sensor: Jika pola dibuka (isExpanded), maka identitas juga terbuka
+  const isIdentityVisible = showValue || isExpanded;
+
   return (
     <div className="bg-slate-900/40 border border-slate-800 hover:border-slate-700 rounded-[2rem] p-6 transition-all group shadow-sm flex flex-col h-fit relative overflow-hidden">
       {/* HEADER KARTU */}
@@ -113,9 +116,12 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, category, onDelete, onEdit
               <span className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.2em] flex items-center gap-1.5">
                 <Globe size={10} /> Layanan / Issuer
               </span>
+              <button onClick={() => setShowValue(!showValue)} className="text-emerald-500 hover:text-emerald-300 transition-colors">
+                {showValue ? <EyeOff size={12} /> : <Eye size={12} />}
+              </button>
             </div>
             <div className="truncate py-0.5">
-              {showValue ? (
+              {isIdentityVisible ? (
                 <span className="text-sm font-bold text-emerald-200 break-all leading-tight animate-in fade-in duration-300">
                   {entry.issuer}
                 </span>
@@ -126,19 +132,24 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, category, onDelete, onEdit
           </div>
         )}
 
-        {/* TAMPILAN USERNAME UNTUK PASSWORD */}
-        {entry.type === EntryType.PASSWORD && entry.username && (
+        {/* TAMPILAN USERNAME UNTUK PASSWORD & PATTERN */}
+        {(entry.type === EntryType.PASSWORD || entry.type === EntryType.PATTERN) && entry.username && (
           <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl px-4 py-3 flex flex-col gap-1 ring-1 ring-blue-500/5 transition-all">
             <div className="flex items-center justify-between">
               <span className="text-[9px] font-black text-blue-500 uppercase tracking-[0.2em] flex items-center gap-1.5">
                 <User size={10} /> Identitas / User
               </span>
-              <button onClick={handleCopyUsername} className="text-blue-500 hover:text-blue-300 transition-colors p-1">
-                {userCopied ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowValue(!showValue)} className="text-blue-500 hover:text-blue-300 transition-colors p-1">
+                  {showValue ? <EyeOff size={12} /> : <Eye size={12} />}
+                </button>
+                <button onClick={handleCopyUsername} className="text-blue-500 hover:text-blue-300 transition-colors p-1">
+                  {userCopied ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
+                </button>
+              </div>
             </div>
             <div className="truncate py-0.5">
-              {showValue ? (
+              {isIdentityVisible ? (
                 <span className="text-sm font-bold text-blue-200 break-all leading-tight animate-in fade-in duration-300">
                   {entry.username}
                 </span>
@@ -159,7 +170,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, category, onDelete, onEdit
               className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 flex items-center justify-between text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-900 transition-all"
             >
               <div className="flex items-center gap-3">
-                <Eye size={16} className="text-blue-500" />
+                {isExpanded ? <EyeOff size={16} className="text-blue-400" /> : <Eye size={16} className="text-blue-500" />}
                 <span>{isExpanded ? 'Sembunyikan' : `Lihat ${entry.type}`}</span>
               </div>
               {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
@@ -179,7 +190,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, category, onDelete, onEdit
                   onClick={handleCopyValue}
                   className="w-full mt-3 py-3.5 bg-slate-800 hover:bg-slate-700 rounded-2xl text-[10px] font-black text-white flex items-center justify-center gap-2 transition-all uppercase tracking-widest"
                 >
-                  {copied ? <><Check size={14} className="text-green-500" /> Tersalin!</> : <><Copy size={14} /> Salin</>}
+                  {copied ? <><Check size={14} className="text-green-500" /> Tersalin!</> : <><Copy size={14} /> Salin Rahasia</>}
                 </button>
               </div>
             )}

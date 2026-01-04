@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Lock, RotateCcw, User, Globe } from 'lucide-react';
 import { EntryType, Category, VaultEntry } from '../types';
@@ -72,8 +71,35 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, onSave, catego
 
   const handleTypeChange = (newType: EntryType) => {
     if (newType === formData.type) return;
-    // Reset nilai hanya jika tipe berubah secara drastis
     setFormData(prev => ({ ...prev, type: newType, value: '', username: '', issuer: '' }));
+  };
+
+  // Helper untuk mendapatkan placeholder berdasarkan tipe secara dinamis
+  const getValuePlaceholder = () => {
+    switch (formData.type) {
+      case EntryType.PASSWORD:
+        return "Masukkan kata sandi akun Anda...";
+      case EntryType.PIN:
+        return "Masukkan 4-6 digit angka (contoh: 123456)...";
+      case EntryType.SECRET_KEY:
+        return "Masukkan API Key, Private Key, atau Token rahasia...";
+      case EntryType.SEED_PHRASE:
+        return "Masukkan 12 atau 24 kata pemulihan (contoh: apple banana cherry ...)";
+      default:
+        return "Ketik nilai rahasia di sini...";
+    }
+  };
+
+  // Helper untuk mendapatkan label yang sesuai tipe
+  const getValueLabel = () => {
+    switch (formData.type) {
+      case EntryType.PASSWORD: return "Kata Sandi";
+      case EntryType.PIN: return "Kode PIN";
+      case EntryType.SEED_PHRASE: return "Recovery Phrase (Seed)";
+      case EntryType.SECRET_KEY: return "Secret / API Key";
+      case EntryType.PATTERN: return "Gambar Pola";
+      default: return "Nilai Rahasia";
+    }
   };
 
   return (
@@ -129,7 +155,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, onSave, catego
             </div>
 
             <div className="space-y-4">
-              {formData.type === EntryType.PASSWORD && (
+              {(formData.type === EntryType.PASSWORD || formData.type === EntryType.PATTERN) && (
                 <div>
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 ml-1">Username / Email</label>
                   <div className="relative group">
@@ -145,7 +171,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, onSave, catego
                 </div>
               )}
 
-                {formData.type === EntryType.SECRET_KEY && (
+              {formData.type === EntryType.SECRET_KEY && (
                 <div>
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 ml-1">Issuer / Layanan</label>
                   <div className="relative group">
@@ -160,19 +186,10 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, onSave, catego
                   </div>
                 </div>
               )}
-              
+
               <div className="flex items-center justify-between ml-1">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
-                  {formData.type === EntryType.SEED_PHRASE
-                      ? 'Input Seed Phrase'
-                      : formData.type === EntryType.PASSWORD
-                      ? 'Input Password'
-                      : formData.type === EntryType.PIN
-                      ? 'Input PIN'
-                      : formData.type === EntryType.PATTERN
-                      ? 'Input Pattern'
-                      : ''
-                    }
+                  {getValueLabel()}
                 </label>
                 {formData.type === EntryType.PASSWORD && (
                   <button type="button" onClick={generatePassword} className="text-[10px] text-blue-400 flex items-center gap-1.5 font-black uppercase">
@@ -189,7 +206,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, onSave, catego
                 <textarea 
                   required
                   className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl px-4 py-4 text-xs font-mono text-amber-200 focus:ring-2 focus:ring-blue-500/40 min-h-[120px] resize-none"
-                  placeholder="Tempelkan 12 atau 24 kata seed Anda di sini..."
+                  placeholder={getValuePlaceholder()}
                   value={formData.value}
                   onChange={e => setFormData(prev => ({ ...prev, value: e.target.value }))}
                 />
@@ -197,7 +214,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, onSave, catego
                 <input 
                   type={formData.type === EntryType.PIN ? "number" : "text"} required
                   className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl px-4 py-3.5 text-sm font-mono text-white focus:ring-2 focus:ring-blue-500/40"
-                  placeholder={formData.type === EntryType.PIN ? "0000" : "Ketik Secret Key..."}
+                  placeholder={getValuePlaceholder()}
                   value={formData.value}
                   onChange={e => setFormData(prev => ({ ...prev, value: e.target.value }))}
                 />
